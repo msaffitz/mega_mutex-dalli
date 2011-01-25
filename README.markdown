@@ -1,6 +1,6 @@
-# mega_mutex
+# mega_mutex-dalli
 
-A distributed mutex for Ruby.
+A distributed mutex for Ruby using the Dalli client
 
 ## Why
 
@@ -32,14 +32,14 @@ Now, thanks to the magic of MegaMutex, you can be sure that all processes trying
 
 ## Install
 
-    sudo gem install mega_mutex
+    sudo gem install mega_mutex-dalli
 
 
 ## Configure
 
-MegaMutex uses [memcache-client](http://seattlerb.rubyforge.org/memcache-client/) to store the mutex, so your infrastructure must be set up to use memcache servers.
+MegaMutex uses [dalli](http://github.com/mperham/dalli) to store the mutex, so your infrastructure must be set up to use memcache servers.
 
-By default, MegaMutex will attempt to connect to a memcache on the local machine, but you can configure any number of servers like so:
+By default, MegaMutex will attempt to connect to either ENV['MEMCACHE_SERVERS'] or localhost, but you can configure any number of servers like so:
 
     MegaMutex.configure do |config|
       config.memcache_servers = ['mc1', 'mc2']
