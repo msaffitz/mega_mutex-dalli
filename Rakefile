@@ -4,14 +4,15 @@ require 'rake'
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
-    gem.name = "mega_mutex"
-    gem.summary = %Q{Distributed mutex for Ruby}
-    gem.description = %Q{Distributed mutex for Ruby}
+    gem.name = "mega_mutex-dalli"
+    gem.summary = %Q{Distributed mutex for Ruby using the Dalli memcached client}
+    gem.description = %Q{Distributed mutex for Ruby using Dalli memcached client}
     gem.email = "developers@songkick.com"
-    gem.homepage = "http://github.com/songkick/mega_mutex"
-    gem.authors = ["Matt Johnson", "Matt Wynne"]
-    gem.add_dependency 'memcache-client', '>= 1.7.4'
+    gem.homepage = "http://github.com/msaffitz/mega_mutex-dalli"
+    gem.authors = ["Matt Johnson", "Matt Wynne", "Michael Saffitz"]
+    gem.add_dependency 'dalli', '>= 1.0.0'
     gem.add_dependency 'logging', '>= 1.1.4'
+    gem.add_dependency 'retryable', ">= 0.1.0"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
   Jeweler::GemcutterTasks.new
@@ -23,20 +24,18 @@ namespace :github do
   task :push do
     remotes = `git remote`.split("\n")
     unless remotes.include?('github')
-      sh('git remote add github git@github.com:songkick/mega_mutex.git')
+      sh('git remote add github git@github.com:msaffitz/mega_mutex-dalli.git')
     end
     sh('git push github master')
   end
 end
 
-require 'spec/rake/spectask'
-Spec::Rake::SpecTask.new(:spec) do |spec|
-  spec.libs << 'lib' << 'spec'
-  spec.spec_files = FileList['spec/**/*_spec.rb']
+require 'rspec/core/rake_task'
+RSpec::Core::RakeTask.new(:spec) do |spec|
+  spec.pattern = 'spec/**/*_spec.rb'
 end
 
-Spec::Rake::SpecTask.new(:rcov) do |spec|
-  spec.libs << 'lib' << 'spec'
+RSpec::Core::RakeTask.new(:rcov) do |spec|
   spec.pattern = 'spec/**/*_spec.rb'
   spec.rcov = true
 end
@@ -54,7 +53,7 @@ Rake::RDocTask.new do |rdoc|
   end
 
   rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "mega_mutex #{version}"
+  rdoc.title = "mega_mutex-dalli #{version}"
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end

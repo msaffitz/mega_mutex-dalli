@@ -1,16 +1,15 @@
 require 'logging'
-require 'memcache'
+require 'dalli'
 require 'retryable'
 
 module MegaMutex
   class TimeoutError < Exception; end
 
   class DistributedMutex
-    include Retryable
 
     class << self
       def cache
-        @cache ||= MemCache.new MegaMutex.configuration.memcache_servers, :namespace => MegaMutex.configuration.namespace
+        @cache ||= Dalli::Client.new MegaMutex.configuration.memcache_servers, :namespace => MegaMutex.configuration.namespace
       end
     end
 
@@ -55,7 +54,7 @@ module MegaMutex
 
     def lock!
       until timeout?
-        retryable(:tries => 5, :sleep => 30, :on => MemCache::MemCacheError, :matching => /IO timeout/) do
+        retryable(:tries => 5, :sleep => 30, :on => Dalli::NetworkError) do
           return if attempt_to_lock == my_lock_id
           sleep 0.1
         end
@@ -71,7 +70,7 @@ module MegaMutex
     end
     
     def unlock!
-      retryable(:tries => 5, :sleep => 30, :on => MemCache::MemCacheError, :matching => /IO timeout/) do
+      retryable(:tries => 5, :sleep => 30, :on => Dalli::NetworkError) do
         cache.delete(@key) if locked_by_me?
       end
     end

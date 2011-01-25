@@ -32,9 +32,9 @@ require 'mega_mutex/distributed_mutex'
 # 
 # == Configuration
 # 
-# MegaMutex uses http://seattlerb.rubyforge.org/memcache-client/ to store the mutex, so your infrastructure must be set up to use memcache servers.
+# MegaMutex uses https://github.com/mperham/dalli to store the mutex, so your infrastructure must be set up to use memcache servers.
 # 
-# By default, MegaMutex will attempt to connect to a memcache on the local machine, but you can configure any number of servers like so:
+# By default, MegaMutex will attempt to connect to either ENV['MEMCACHE_SERVERS'] or localhost, but you can configure any number of servers like so:
 # 
 #     MegaMutex.configure do |config|
 #       config.memcache_servers = ['mc1', 'mc2']
@@ -89,7 +89,6 @@ module MegaMutex
     attr_accessor :memcache_servers, :namespace
 
     def initialize
-      @memcache_servers = 'localhost'
       @namespace = 'mega_mutex'
     end
   end
