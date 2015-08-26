@@ -80,7 +80,8 @@ module MegaMutex
     end
     
     def set_current_lock(new_lock)
-      cache.add(@key, my_lock_id)      
+      # set the expiration to the same as the retryable time
+      cache.add(@key, my_lock_id, 150)      
     end
     
     def my_lock_id
