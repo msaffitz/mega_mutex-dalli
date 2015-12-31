@@ -54,7 +54,7 @@ module MegaMutex
 
     def lock!
       until timeout?
-        retryable(:tries => 5, :sleep => 30, :on => Dalli::NetworkError) do
+        Retryable.retryable(:tries => 5, :sleep => 30, :on => Dalli::NetworkError) do
           return if attempt_to_lock == my_lock_id
           sleep 0.1
         end
@@ -70,7 +70,7 @@ module MegaMutex
     end
     
     def unlock!
-      retryable(:tries => 5, :sleep => 30, :on => Dalli::NetworkError) do
+      Retryable.retryable(:tries => 5, :sleep => 30, :on => Dalli::NetworkError) do
         cache.delete(@key) if locked_by_me?
       end
     end
@@ -80,7 +80,8 @@ module MegaMutex
     end
     
     def set_current_lock(new_lock)
-      cache.add(@key, my_lock_id)      
+      # set the expiration to the same as the retryable time
+      cache.add(@key, my_lock_id, 150)      
     end
     
     def my_lock_id
